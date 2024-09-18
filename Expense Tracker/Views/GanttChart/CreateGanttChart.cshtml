@@ -1,0 +1,210 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Gantt Chart</title>
+    <!-- Syncfusion Gantt Chart CSS -->
+    <link href="https://cdn.syncfusion.com/ej2/20.2.0/styles/material.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- Syncfusion Gantt Chart JavaScript -->
+    <script src="https://cdn.syncfusion.com/ej2/20.2.0/dist/ej2.min.js"></script>
+    <script src="https://cdn.syncfusion.com/ej2/20.2.0/dist/ej2-gantt.min.js"></script>
+    <style>
+        /* Custom Styles */
+        .gantt-container {
+            background-color: #1a222b;
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .gantt-form {
+            background-color: #222b33;
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-bottom: 20px;
+        }
+
+            .gantt-form label {
+                color: #fff;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+
+            .gantt-form input {
+                width: 100%;
+                padding: 0.5rem;
+                margin-bottom: 1rem;
+                border: 1px solid #333;
+                border-radius: 4px;
+                background-color: #1a222b;
+                color: #fff;
+            }
+
+            .gantt-form button {
+                background-color: #65da41;
+                color: #fff;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-right: 0.5rem;
+            }
+
+                .gantt-form button:hover {
+                    background-color: #4c9c2e;
+                }
+
+        .gantt-chart-container {
+            height: 600px;
+            margin-top: 20px;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.875rem;
+            margin-top: -0.75rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Gantt Chart</h1>
+
+    <!-- Form for Creating Tasks -->
+    <div class="gantt-container">
+        <form id="ganttForm" asp-action="GenerateGanttChart" method="post" class="gantt-form">
+            <div id="tasks">
+                <div class="task-row">
+                    <label for="TaskName">Task Name:</label>
+                    <input type="text" name="TaskName" required />
+                    <div class="error-message" id="TaskNameError"></div>
+
+                    <label for="StartDate">Start Date:</label>
+                    <input type="date" name="StartDate" required />
+                    <div class="error-message" id="StartDateError"></div>
+
+                    <label for="EndDate">End Date:</label>
+                    <input type="date" name="EndDate" required />
+                    <div class="error-message" id="EndDateError"></div>
+
+                    <label for="Progress">Progress (%):</label>
+                    <input type="number" name="Progress" max="100" min="0" required />
+                    <div class="error-message" id="ProgressError"></div>
+                </div>
+            </div>
+
+            <button type="button" onclick="addTask()">Add Another Task</button>
+            <button type="button" onclick="generateGanttChart()">Generate Gantt Chart</button>
+        </form>
+    </div>
+
+    <!-- Container for Gantt Chart -->
+    <div id="GanttChartContainer" class="gantt-chart-container"></div>
+
+    <script>
+        let taskIdCounter = 1; // Initialize a counter for unique task IDs
+
+        function addTask() {
+            var newTask = document.querySelector('.task-row').cloneNode(true);
+            // Clear previous error messages
+            clearErrors(newTask);
+            document.getElementById('tasks').appendChild(newTask);
+        }
+
+        function generateGanttChart() {
+            var taskData = [];
+            var taskRows = document.querySelectorAll('.task-row');
+            let isValid = true; // Flag to track form validity
+
+            // Clear previous error messages
+            document.querySelectorAll('.error-message').forEach(el => el.innerHTML = '');
+
+            taskRows.forEach(row => {
+                // Get values from the form
+                var taskName = row.querySelector('input[name="TaskName"]').value;
+                var startDate = new Date(row.querySelector('input[name="StartDate"]').value);
+                var endDate = new Date(row.querySelector('input[name="EndDate"]').value);
+                var progress = parseInt(row.querySelector('input[name="Progress"]').value, 10);
+
+                // Validate required fields
+                if (!taskName) {
+                    row.querySelector('#TaskNameError').innerHTML = 'Task Name is required.';
+                    isValid = false;
+                }
+                if (isNaN(startDate.getTime())) {
+                    row.querySelector('#StartDateError').innerHTML = 'Start Date is required.';
+                    isValid = false;
+                }
+                if (isNaN(endDate.getTime())) {
+                    row.querySelector('#EndDateError').innerHTML = 'End Date is required.';
+                    isValid = false;
+                }
+                if (isNaN(progress)) {
+                    row.querySelector('#ProgressError').innerHTML = 'Progress is required.';
+                    isValid = false;
+                }
+
+                // Validate end date is after start date
+                if (endDate <= startDate) {
+                    row.querySelector('#EndDateError').innerHTML = 'End Date must be after Start Date.';
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    var task = {
+                        TaskId: taskIdCounter++, // Assign unique ID to each task
+                        TaskName: taskName,
+                        StartDate: startDate,
+                        EndDate: endDate,
+                        Progress: progress
+                    };
+                    taskData.push(task);
+                }
+            });
+
+            if (isValid && taskData.length > 0) {
+                initializeGanttChart(taskData);
+            } else if (!isValid) {
+                document.getElementById('GanttChartContainer').innerHTML = "<p>Please correct the errors and try again.</p>";
+            }
+        }
+
+        function initializeGanttChart(taskData) {
+            if (taskData && taskData.length > 0) {
+                var ganttChart = new ej.gantt.Gantt({
+                    dataSource: taskData,
+                    taskFields: {
+                        id: 'TaskId',
+                        name: 'TaskName',
+                        startDate: 'StartDate',
+                        endDate: 'EndDate',
+                        duration: 'Duration',
+                        progress: 'Progress',
+                        parentID: 'ParentID'
+                    },
+                    height: '600px',
+                    gridLines: 'Both',
+                    treeColumnIndex: 1,
+                    columns: [
+                        { field: 'TaskId', headerText: 'Task ID', width: '80' },
+                        { field: 'TaskName', headerText: 'Task Name', width: '250' },
+                        { field: 'StartDate', headerText: 'Start Date', format: 'yyyy-MM-dd', width: '150' },
+                        { field: 'EndDate', headerText: 'End Date', format: 'yyyy-MM-dd', width: '150' },
+                        { field: 'Progress', headerText: 'Progress (%)', width: '120' }
+                    ]
+                });
+
+                ganttChart.appendTo('#GanttChartContainer');
+            } else {
+                document.getElementById('GanttChartContainer').innerHTML = "<p>No tasks to display</p>";
+            }
+        }
+
+        function clearErrors(taskRow) {
+            taskRow.querySelectorAll('.error-message').forEach(el => el.innerHTML = '');
+        }
+    </script>
+</body>
+</html>
