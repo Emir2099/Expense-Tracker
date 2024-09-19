@@ -23,5 +23,9 @@
     <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="26.2.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\Expense Tracker\" />
+  </ItemGroup>
+
 </Project>
 

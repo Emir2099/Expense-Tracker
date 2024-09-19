@@ -1,0 +1,245 @@
+﻿@model IEnumerable<Board>
+
+<h2>Boards</h2>
+<form asp-action="Create" method="post" class="create-board-form" onsubmit="return validateForm()">
+    <input style="margin-left:10px" type="text" id="boardTitle" name="title" placeholder="New Board" required />
+    <span id="error-message" class="text-danger" style="display:none;"></span>
+    <i class="fa fa-plus" aria-hidden="true" title="Create Board" onclick="this.closest('form').submit()"></i>
+</form>
+<div class="boards-container">
+    @foreach (var board in Model)
+    {
+        <div class="board">
+            <div class="board-header">
+                <h3>Board Name : @board.Title</h3>
+                <form asp-action="AddList" method="post" class="add-list-form">
+                    <input type="hidden" name="boardId" value="@board.Id" />
+                    <input type="text" name="listName" placeholder="New List" required />
+                    <i class="fa fa-plus" aria-hidden="true" title="Add List" onclick="this.closest('form').submit()"></i>
+                </form>
+            </div>
+            <div class="lists-container">
+                @if (board.Lists != null && board.Lists.Any())
+                {
+                    @foreach (var list in board.Lists)
+                    {
+                        <div class="list">
+                            <h4>List : @list.Name</h4>
+                            @if (list.Tasks != null && list.Tasks.Any())
+                            {
+                                <div class="tasks-container">
+                                    
+                                
+                                    @foreach (var task in list.Tasks)
+                                    {
+                                        <div class="task">
+                                           
+                                            <div class="task-header">
+                                                <span class="@(task.IsCompleted ? "completed" : "")">@task.Content</span>
+                                                <input type="checkbox" onchange="this.form.submit()" @(task.IsCompleted ? "checked" : "") />
+                                            </div>
+                                            <div class="task-actions">
+                                                <form asp-action="DeleteTask" method="post" class="task-form">
+                                                    <input type="hidden" name="boardId" value="@board.Id" />
+                                                    <input type="hidden" name="listId" value="@list.Id" />
+                                                    <input type="hidden" name="taskId" value="@task.Id" />
+                                                    <i class="fa fa-trash" aria-hidden="true" title="Delete" onclick="this.closest('form').submit()"></i>
+                                                </form>
+                                                <form asp-action="AddSubtask" method="post" class="task-form">
+                                                    <input type="hidden" name="boardId" value="@board.Id" />
+                                                    <input type="hidden" name="listId" value="@list.Id" />
+                                                    <input type="hidden" name="taskId" value="@task.Id" />
+                                                    <input type="text" name="subtaskContent" placeholder="New Subtask" required />
+                                                    <i class="fa fa-plus" aria-hidden="true" title="Add Subtask" onclick="this.closest('form').submit()"></i>
+                                                </form>
+                                            </div>
+                                            <div class="subtasks">
+                                               <h4>Subtasks</h4>
+                                                @if (task.Subtasks != null && task.Subtasks.Any())
+                                                {
+                                                    foreach (var subtask in task.Subtasks)
+                                                    {
+                                                        <div class="subtask">
+                                                            <hr />
+                                                            <span class="@(subtask.IsCompleted ? "completed" : "")">@subtask.Content</span>
+                                                            <input type="checkbox" onchange="this.form.submit()" @(subtask.IsCompleted ? "checked" : "") />
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p>No tasks available for this list.</p>
+                            }
+                            <form asp-action="AddTask" method="post" class="task-form">
+                                <input type="hidden" name="boardId" value="@board.Id" />
+                                <input type="hidden" name="listId" value="@list.Id" />
+                                <input type="text" name="taskContent" placeholder="New Task" required />
+                                <i class="fa fa-plus" aria-hidden="true" title="Add Task" onclick="this.closest('form').submit()"></i>
+                            </form>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>No lists available for this board.</p>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+
+
+<script>
+    function validateForm() {
+        const input = document.getElementById('boardTitle');
+        const errorMessage = document.getElementById('error-message');
+
+        if (input.value.trim() === '') {
+            errorMessage.innerHTML = 'Board title is required.';
+            errorMessage.style.display = 'block';
+            return false; // Prevent form submission
+        } else {
+            errorMessage.style.display = 'none';
+            return true; // Allow form submission
+        }
+    }
+</script>
+
+
+<style>
+    html {
+        font-size: 16px; /* Set a fixed font size */
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    .boards-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .board {
+        background-color: #1a222b;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        flex: 1 1 calc(25% - 20px);
+        padding: 16px;
+    }
+
+    .board-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .lists-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .list {
+        background-color: #222b33;
+        border-radius: 6px;
+        padding: 10px;
+    }
+
+    .tasks-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .task, .subtask {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px;
+        background-color: #1a222b;
+        border-radius: 4px;
+        color: #ffff;
+    }
+
+    .task-header {
+    display: flex;
+    align-items: center; /* Aligns items vertically in the center */
+    justify-content: space-between; /* Space between the checkbox and icon */
+    width: 100%;
+}
+
+.task-header input[type="checkbox"] {
+    margin-right: 10px; /* Space between checkbox and task name */
+}
+
+
+    .task-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .task-form, .create-board-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    input[type="text"] {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        background-color: #222b33;
+        color: #fff;
+    }
+
+    i.fa {
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #65da41;
+        transition: color 0.3s;
+    }
+
+        i.fa:hover {
+            color: #4c9b3d;
+        }
+
+    .completed {
+        text-decoration: line-through;
+        color: #aaa;
+    }
+
+    .subtask {
+        padding: 5px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .task-actions {
+        display: flex;
+        gap: 30px;
+    }
+
+        .task-actions i.fa-trash {
+            margin-left: 30px; /* Adjust space as needed */
+        }
+
+        .task-actions i.fa{
+            margin-left: 20px; /* Adjust space as needed */
+            margin-right: 20px;
+        }
+
+</style>
