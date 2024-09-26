@@ -1,4 +1,5 @@
 using Expense_Tracker.Models;
+using Expense_Tracker.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,10 @@ builder.Services.AddHttpClient<AIService>(); // If it uses HttpClient
 // or
 builder.Services.AddScoped<AIService>(); // Depending on how you want to register the service
 
+builder.Services.AddHttpClient<GeminiService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.gemini.com/");
+});
 
 
 var app = builder.Build();

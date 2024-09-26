@@ -1,0 +1,72 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+@model List<Expense_Tracker.Models.InvestmentOption>
+
+@{
+    ViewBag.Title = "Investment Options";
+}
+
+<div class="container-fluid">
+    <h2 class="text-center">Investment Options</h2>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th class="text-white">Name</th>
+                        <th class="text-white">Bid</th>
+                        <th class="text-white">Ask</th>
+                        <th class="text-white">Last</th>
+                        <th class="text-white">USD Volume</th>
+                        <th class="text-white">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var option in Model)
+                    {
+                        <tr style="border-bottom: 1px solid #dee2e6;">
+                            <td class="text-white">@option.Name</td>
+                            <td class="text-white">@option.Bid</td>
+                            <td class="text-white">@option.Ask</td>
+                            <td class="text-white">@option.Last</td>
+                            <td class="text-white">@option.Volume?.USD</td>
+                            <td class="text-white">@option.Volume?.Timestamp</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p class="text-center">No investment options available.</p>
+    }
+
+    <div class="text-center mt-4">
+        <a href="@Url.Action("Index", "Investment")" class="btn btn-success">Refresh List</a>
+    </div>
+</div>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('table').DataTable();
+    });
+</script>
+<style>
+    body {
+        color: white; /* Default text color */
+    }
+    .btn-success {
+        background-color: green !important; /* Green background */
+        border-color: green !important; /* Green border */
+    }
+
+        .btn-success:hover {
+            background-color: darkgreen; /* Darker green on hover */
+        }
+</style>
