@@ -27,5 +27,9 @@
     <Folder Include="Views\Expense Tracker\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\profile.png" />
+  </ItemGroup>
+
 </Project>
 

@@ -45,36 +45,37 @@
         url = "/Board/Index"
     });
 
-
-    menuItems.Add(new
-    {
-        text = "Settings",
-        iconCss = "fa-solid fa-gear",
-        url = "/Settings/Index"
-    });
-
     menuItems.Add(new
     {
         text = "Investment",
         iconCss = "fa-solid fa-chart-line",
         url = "/Investment/Index"
     });
+
+    // menuItems.Add(new
+    // {
+    //     text = "Settings",
+    //     iconCss = "fa-solid fa-gear",
+    //     url = "/Settings/Index"
+    // });
+
+    
 }
 
 <ejs-sidebar id="sidebar" width="290px" enableDock dockSize="100px" target=".dock-target" enableGestures="false">
     <e-content-template>
         <div class="logo-wrapper">
             <div class="app-logo">
-                <img src="~/logo.png" />
+                <img src="~/appicon.png" />
             </div>
             <div class="w-100"></div>
             <i id="sidebar-toggler" class="fa-solid"></i>
         </div>
         <div class="profile-wrapper">
-            <img class="profile-pic" src="~/profile.jpg" />
+            <img class="profile-pic" src="~/profile.png" />
             <div class="titles d-flex flex-column ps-3">
                 <h6 class="mb-0">Expense Tracker</h6>
-                <span class="text-muted">Dev Patel</span>
+                <span class="text-muted">Emir Husain</span>
             </div>
         </div>
         <ejs-menu id="menu" items="menuItems" orientation="Vertical" hamburgerMode></ejs-menu>
